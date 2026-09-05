@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "width": 300.0,
+  "height": 300.0,
+  "scale": 1.5,
+  "centerX": 0.92,
+  "centerY": 0.42,
+  "opacity": 1.0,
+  "sequenceLockSeconds": 0.70
+}
