@@ -76,7 +76,7 @@ README内の変更記録から、少なくとも次の順序が確認できる�
 |---|---|---|---|
 | GitHubリポジトリ作成 | `https://github.com/itachitachi2-art/DonChanActionTheater` | 2026-09-05T18:17:59Z | `bdecb6c4fee4087ed59d6a4ae0456dacaf8138f9` |
 | 原本ZIP公開コミット | `https://github.com/itachitachi2-art/DonChanActionTheater/commit/ea06e140e838567bf560eb664e97ff5b790ceba7` | 2026-09-05 | 0.5.0 / ZIP SHA-256 |
-| ソース・証拠文書コミット | 公開後追記 |  |  |
+| ソース・証拠文書コミット | `https://github.com/itachitachi2-art/DonChanActionTheater/commit/4d2a684b0a617ecc6687d7aaedc8da7a1a129cb9` | 2026-09-05T18:29:15Z | 公開用README・ソース・試験記録・証拠台帳 |
 | GitHub Release | 未公開 |  | 0.5.0 / ZIP SHA-256 |
 | Zenn記事 | 未公開 |  |  |
 | 動作動画 | 未公開 |  | 0.5.0 |
