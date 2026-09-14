@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModInfo>
+  <Name value="QuietQuestDistance" />
+  <DisplayName value="Quiet Quest Distance" />
+  <Description value="Toggle only quest destination distance labels while keeping quest markers visible." />
+  <Author value="Itachi &amp; Ai" />
+  <Version value="0.1.0" />
+</ModInfo>
