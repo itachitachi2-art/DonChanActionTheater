@@ -23,6 +23,10 @@
 
 切り替え状態は再起動後も保持されます。キーは `Config/quiet-quest-distance.json` の `toggleKey` で変更できます。
 
+## 仕組み
+
+対象5種の `NavObjectScreenSettings.ShowTextType` だけを `Distance` と `None` の間で切り替えます。Harmonyによる描画パッチは使いません。ゲーム本来のマーカー描画を維持したまま、距離ラベルだけを止めます。
+
 ## ビルド
 
 PowerShellで実行します。
@@ -39,4 +43,4 @@ PowerShellで実行します。
 
 ## 導入
 
-ビルド後、`QuietQuestDistance` フォルダ全体を7DTDの `Mods` 配下へコピーします。Harmonyを使うためEACを無効にしてください。
+ビルド後、`QuietQuestDistance` フォルダ全体を7DTDの `Mods` 配下へコピーします。DLL ModのためEACを無効にしてください。
