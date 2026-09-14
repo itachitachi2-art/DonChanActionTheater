@@ -17,23 +17,26 @@ namespace QuietQuestDistance
     {
         private const string HiddenPreference = "QuietQuestDistance.Hidden";
 
-        private static readonly HashSet<string> TargetNavObjectClasses =
-            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "quest",
-                "rally",
-                "go_to_trader",
-                "return_to_trader",
-                "quest_switch"
-            };
+        private static readonly string[] TargetNavObjectClasses =
+        {
+            "quest",
+            "rally",
+            "go_to_trader",
+            "return_to_trader",
+            "quest_switch"
+        };
 
         internal static QuietQuestDistanceRuntime Instance { get; private set; }
-        internal static bool Hidden => Instance != null && Instance.hidden;
+
+        private readonly Dictionary<NavObjectScreenSettings, NavObjectScreenSettings.ShowTextTypes>
+            originalTextTypes =
+                new Dictionary<NavObjectScreenSettings, NavObjectScreenSettings.ShowTextTypes>();
 
         private QuietQuestDistanceConfig config = new QuietQuestDistanceConfig();
         private string configPath;
         private KeyCode toggleKey = KeyCode.F8;
         private bool hidden;
+        private float nextApplyAt;
         private string notice = "";
         private float noticeUntil;
 
@@ -56,6 +59,7 @@ namespace QuietQuestDistance
                 ? PlayerPrefs.GetInt(HiddenPreference) != 0
                 : config.hiddenByDefault;
 
+            ApplyDesiredState();
             Debug.Log("[QuietQuestDistance] Quest distance labels: " + (hidden ? "hidden" : "visible")
                 + "; toggle key: " + toggleKey);
         }
@@ -65,6 +69,14 @@ namespace QuietQuestDistance
             if (Input.GetKeyDown(toggleKey))
             {
                 SetHidden(!hidden);
+            }
+
+            // Nav object classes can be rebuilt while loading a world or reloading
+            // XML. Reapply occasionally so the selected state survives that cycle.
+            if (Time.unscaledTime >= nextApplyAt)
+            {
+                ApplyDesiredState();
+                nextApplyAt = Time.unscaledTime + 0.5f;
             }
         }
 
@@ -78,15 +90,10 @@ namespace QuietQuestDistance
             GUI.Box(rect, notice);
         }
 
-        internal static bool ShouldHide(NavObject navObject)
+        private void OnDestroy()
         {
-            if (!Hidden || navObject == null || navObject.NavObjectClass == null) return false;
-
-            NavObjectScreenSettings settings = navObject.CurrentScreenSettings;
-            if (settings == null || settings.ShowTextType != NavObjectScreenSettings.ShowTextTypes.Distance)
-                return false;
-
-            return TargetNavObjectClasses.Contains(navObject.NavObjectClass.NavObjectClassName);
+            RestoreOriginalSettings();
+            if (Instance == this) Instance = null;
         }
 
         internal string RunCommand(string action)
@@ -107,6 +114,7 @@ namespace QuietQuestDistance
                     return Status();
                 case "reload":
                     ReloadConfig();
+                    ApplyDesiredState();
                     return Status() + "; config reloaded";
                 case "status":
                 case "":
@@ -127,10 +135,53 @@ namespace QuietQuestDistance
             hidden = value;
             PlayerPrefs.SetInt(HiddenPreference, hidden ? 1 : 0);
             PlayerPrefs.Save();
+            ApplyDesiredState();
 
             notice = hidden ? "QUEST DISTANCE: HIDDEN" : "QUEST DISTANCE: VISIBLE";
             noticeUntil = Time.unscaledTime + 1.5f;
             Debug.Log("[QuietQuestDistance] " + notice);
+        }
+
+        private void ApplyDesiredState()
+        {
+            foreach (string className in TargetNavObjectClasses)
+            {
+                NavObjectClass navClass = NavObjectClass.GetNavObjectClass(className);
+                if (navClass == null) continue;
+
+                ApplyToSettings(navClass.OnScreenSettings);
+                ApplyToSettings(navClass.InactiveOnScreenSettings);
+            }
+
+            if (!hidden) originalTextTypes.Clear();
+        }
+
+        private void ApplyToSettings(NavObjectScreenSettings settings)
+        {
+            if (settings == null) return;
+
+            if (hidden)
+            {
+                if (!originalTextTypes.ContainsKey(settings))
+                    originalTextTypes.Add(settings, settings.ShowTextType);
+
+                settings.ShowTextType = NavObjectScreenSettings.ShowTextTypes.None;
+                return;
+            }
+
+            NavObjectScreenSettings.ShowTextTypes original;
+            if (originalTextTypes.TryGetValue(settings, out original))
+                settings.ShowTextType = original;
+        }
+
+        private void RestoreOriginalSettings()
+        {
+            foreach (KeyValuePair<NavObjectScreenSettings, NavObjectScreenSettings.ShowTextTypes> pair
+                in originalTextTypes)
+            {
+                if (pair.Key != null) pair.Key.ShowTextType = pair.Value;
+            }
+            originalTextTypes.Clear();
         }
 
         private void ReloadConfig()
