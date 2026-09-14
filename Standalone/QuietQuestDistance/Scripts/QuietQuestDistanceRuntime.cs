@@ -218,7 +218,7 @@ namespace QuietQuestDistance
         {
             Match match = Regex.Match(
                 json ?? "",
-                "\\"" + Regex.Escape(key) + "\\"\\s*:\\s*\\"([^\\"]+)\\"",
+                "\\\"" + Regex.Escape(key) + "\\\"\\s*:\\s*\\\"([^\\\"]+)\\\"",
                 RegexOptions.IgnoreCase);
             return match.Success ? match.Groups[1].Value.Trim() : fallback;
         }
@@ -227,7 +227,7 @@ namespace QuietQuestDistance
         {
             Match match = Regex.Match(
                 json ?? "",
-                "\\"" + Regex.Escape(key) + "\\"\\s*:\\s*(true|false)",
+                "\\\"" + Regex.Escape(key) + "\\\"\\s*:\\s*(true|false)",
                 RegexOptions.IgnoreCase);
             bool value;
             return match.Success && bool.TryParse(match.Groups[1].Value, out value) ? value : fallback;
